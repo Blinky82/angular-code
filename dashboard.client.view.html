@@ -1,0 +1,244 @@
+<section>
+		<div class="page-header">
+			<h1 class="container">
+				Dashboard
+				<div class="container-fluid breadcrumb-custom" ng-if="authentication.user">
+					<div ncy-breadcrumb></div>
+				</div>
+			</h1>
+		</div>
+		<div class="page">	
+		    <div class="filter-bar">
+				<div style="display: inline-block;">
+					<div class="label-container" style="padding-left: 0;">
+						<strong><i class="fas fa-filter" aria-hidden="true" style="-webkit-transform: rotate(90deg); -moz-transform: rotate(90deg); -o-transform: rotate(90deg); -ms-transform: rotate(90deg); transform: rotate(90deg);"></i> Filter By:</strong>
+						<label style="padding-left: 20px" for="sel_count">Countries:</label>
+					</div>
+					<div
+						style="float: left;"
+						id="sel_count"
+					    isteven-multi-select
+					    input-model="countries"
+					    output-model="countriesOut.values"
+					    button-label="name"
+					    item-label="name"
+					    tick-property="ticked"					    	
+						on-select-all="itemClick('country')"
+					    on-select-none="itemClick('cities')"
+					    on-reset="itemClick('cities')"
+					    on-item-click="itemClick('cities')"
+					>
+					</div>
+				</div>
+				<div style="display: inline-block;">
+					<div class="label-container"><label for="sel_city">Cities:</label></div>
+					<div
+						style="float: left;"
+						id="sel_city"
+						isteven-multi-select
+					    input-model="cities"
+					    output-model="citiesOut.values"
+					    button-label="name"
+					    item-label="name"
+					    tick-property="ticked"
+					    on-select-all="itemClick('cities')"
+					    on-select-none="itemClick('cities')"
+					    on-reset="itemClick('cities')"
+					    on-item-click="itemClick('cities')"
+					>
+					</div>
+				</div>
+				<div style="display: inline-block;">
+					<div class="label-container"><label for="sel_type">Type:</label></div>
+					<div
+						style="float: left;"
+						id="sel_type"
+					    isteven-multi-select
+					    input-model="locationTypes"
+					    output-model="locationTypesOut.values"
+					    button-label="name"
+					    item-label="name"
+					    tick-property="ticked"
+					    on-select-all="itemClick('type')"
+					    on-select-none="itemClick('type')"
+					    on-reset="itemClick('type')"
+					    on-item-click="itemClick('type')"
+					>
+					</div>
+				</div>
+				<div style="display: inline-block;">
+					<button type="button" class="btn btn-reset-filter" ng-click="resetFilter()" ng-if="activeFilter">Reset filter <span>x</span></button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">		
+				  <uib-tabset justified="true" active="dashboardActiveTab">
+					  <uib-tab heading="Last Added" ng-click="dashboardActiveTabChanged(0)">
+						  <h3 style="padding-top: 12px; margin-top: 0; color: #eee; font-size: 14px">Last Created Racks</h3>
+						  <table ng-table="lastCreatedRacksTableParams" class="table table-condensed table-bordered table-striped entities-list">
+							  <tr ng-repeat="row in $data" ng-click="viewRack(row)">
+								  <td data-title="''" class="text-center" ng-click="favouritesRack(row, $event)">
+									  <button class="btn btn-favourites" >
+										  <span ng-hide="row.rackIsInFav"><i class="fas fa-star"></i></span>
+										  <span ng-show="row.rackIsInFav"><i style="color: #f4cf21" class="fas fa-star"></i></span>
+									  </button>
+								  </td>
+								  <td data-title="''" class="text-center" >
+									  <label ng-if="!row.status && !row.locked"><i class="far fa-circle" uib-tooltip-template="'newlyTooltipTemplate.html'"></i></label>
+									  <label ng-if="row.locked && authentication.user.username != row.lockedBy"><i class="fas fa-lock" uib-tooltip-template="'lockTooltipTemplate.html'"></i></label>
+									  <label ng-if="row.status && !row.locked"><i class="far fa-check-square" uib-tooltip-template="'completedTooltipTemplate.html'"></i></label>
+									  <label ng-if="row.locked && authentication.user.username == row.lockedBy"><i class="far fa-edit" uib-tooltip-template="'editableTooltipTemplate.html'"></i></label>
+								  </td>
+								  <td data-title="'Name'" sortable="'name'">{{row.name}}</td>
+								  <td data-title="'Country'" sortable="'countryName'">
+									  <country-name name="row.countryName"></country-name>
+								  </td>
+								  <td data-title="'City'" sortable="'cityName'">{{row.cityName}}</td>
+								  <td data-title="'DC/DR'" sortable="'locationName'">{{row.locationName}}</td>
+								  <td data-title="'Coordinates (row/col)'" >{{row.rackLocation}}</td>
+								  <td data-title="'Units'" sortable="'notYet'" class="td-free">
+									  <load-value capacity="row.sizeInU" used="row.takenUnits"></load-value>
+								  </td>
+								  <td data-title="'Power (Watts)'" sortable="'notYet'" class="td-free">
+									  <load-value capacity="row.powerCapacityLimit" used="row.totalPower + row.storagePower + row.enclosurePower"></load-value>
+								  </td>
+								  <td data-title="'Weight (kg)'" sortable="'notYet'" class="td-free">
+									  <load-value capacity="row.weightFloorLimit" used="row.totalWeight"></load-value>
+								  </td>
+							  </tr>
+						  </table>
+						  <h3 style="padding-top: 12px; color: #eee; font-size: 14px">Last Added Devices</h3>
+						  <table ng-table="lastAddedDevices" class="table table-condensed table-bordered table-striped entities-list">
+							  <tr ng-repeat="row in $data" ng-click="viewRack(row)">
+								  <td data-title="'Device Name'" sortable="'fullDeviceName'">{{row.fullDeviceName}}</td>
+								  <td data-title="'Rack Name'" sortable="'rackName'">{{row.rackName}}</td>
+								  <td data-title="'DC/DR'" sortable="'locationName'">{{row.locationName}}</td>
+								  <td data-title="'Start U'" >{{row.uIndex}}</td>
+								  <td data-title="'End U'" >{{row.uIndex-row.takeUnits}}</td>
+								  <td data-title="'Business Purpose'" >{{row.businessPurpose}}</td>
+								  <td data-title="'OS'" >{{row.os}}</td>
+							  </tr>
+						  </table>
+					  </uib-tab>
+					  <uib-tab heading="Favourite Racks" ng-click="dashboardActiveTabChanged(1)">
+						  <table ng-table="favRackTableParams" class="table table-condensed table-bordered table-striped entities-list">
+							  <tr ng-repeat="row in $data" ng-click="viewRack(row)">
+								  <td data-title="''" ng-click="favouritesRack(row, $event)" class="text-center">
+									  <button class="btn btn-favourites">
+										  <span ng-hide="row.rackIsInFav"><i class="fas fa-star"></i></span>
+										  <span ng-show="row.rackIsInFav"><i style="color: #f4cf21" class="fas fa-star"></i></span>
+									  </button>
+								  </td>
+								  <td data-title="''" class="text-center" >
+									  <label ng-if="!row.status && !row.locked"><i class="far fa-circle" uib-tooltip-template="'newlyTooltipTemplate.html'"></i></label>
+									  <label ng-if="row.locked && authentication.user.username != row.lockedBy"><i class="fas fa-lock" uib-tooltip-template="'lockTooltipTemplate.html'"></i></label>
+									  <label ng-if="row.status && !row.locked"><i class="far fa-check-square" uib-tooltip-template="'completedTooltipTemplate.html'"></i></label>
+									  <label ng-if="row.locked && authentication.user.username == row.lockedBy"><i class="far fa-edit" uib-tooltip-template="'editableTooltipTemplate.html'"></i></label>
+								  </td>
+								  <td data-title="'Name'" sortable="'name'">{{row.name}}</td>
+								  <td data-title="'Country'" sortable="'countryName'">
+									  <country-name name="row.countryName"></country-name>
+								  </td>
+								  <td data-title="'City'" sortable="'cityName'">{{row.cityName}}</td>
+								  <td data-title="'Units'" sortable="'notYet'" class="td-free">
+									  <load-value capacity="row.sizeInU" used="row.takenUnits"></load-value>
+								  </td>
+								  <td data-title="'Power (Watts)'" sortable="'notYet'" class="td-free">
+									  <load-value capacity="row.powerCapacityLimit" used="row.totalPower + row.storagePower + row.enclosurePower"></load-value>
+								  </td>
+								  <td data-title="'Weight (kg)'" sortable="'notYet'" class="td-free">
+									  <load-value capacity="row.weightFloorLimit" used="row.totalWeight"></load-value>
+								  </td>
+							  </tr>
+						  </table>
+					  </uib-tab>
+				    <uib-tab heading="Country Statistics" ng-click="dashboardActiveTabChanged(2)">
+				      <table ng-table="statisticsTableParams" class="table table-condensed table-bordered table-striped entities-list">
+				        <tr ng-repeat="row in $data" ng-click="viewCountry(row)">
+							<td data-title="'Name'" sortable="'countryName'">
+								<country-name name="row.countryName"></country-name>
+							</td>
+				          <td data-title="'Racks'" sortable="'rackCount'">{{row.rackCount}}</td>
+						  <td data-title="'Power (Watts)'" sortable="'notYet'" class="td-free">
+						  	<load-value capacity="row.powerLimit" used="row.totalPower + row.storagePower + row.enclosurePower"></load-value>
+						  </td>
+				          <td data-title="'Units'" sortable="'notYet'" class="td-free">
+							<load-value capacity="row.sizeInU" used="row.takenUnits"></load-value>
+						  </td>
+				          <td data-title="'Network ports'" sortable="'networkPorts'">{{row.networkPorts}}</td>
+				        </tr>
+				      </table>
+				    </uib-tab>
+				    <uib-tab heading="DC/DR Information" ng-click="dashboardActiveTabChanged(3)">
+						  <a class="btn btn-link btn-add" ng-if="authentication.user.roles[0]!=='ReadOnly'" href="#!/dashboard/dataLocation/create">Add<span>+</span></a>
+						  <table ng-table="dataLocationTableParams" class="table table-condensed table-bordered table-striped entities-list">
+							<tr ng-repeat="row in $data" ng-click="viewDataLocation(row)">
+							  <td data-title="'Name'" sortable="'name'">{{row.name}}</td>
+							  <td data-title="'Type'" sortable="'type'">{{row.type}}</td>
+							  <td data-title="'Country'" sortable="'country.name'">
+								  <country-name name="row.country.name"></country-name>
+							  </td>
+							  <td data-title="'City'" sortable="'city.name'">{{row.city.name}}</td>
+							  <td data-title="'Racks'" sortable="'numberOfRacks'">{{row.numberOfRacks}}</td>
+							  <td data-title="'Units'" sortable="'notYet'" class="td-free">
+								  <load-value capacity="row.totalU" used="row.takenUnits"></load-value>
+							  </td>
+							  <td data-title="'Power (Watts)'" sortable="'notYet'" class="td-free">
+								  <load-value capacity="row.totalPowerLimit" used="row.totalPower + row.storagePower + row.enclosurePower"></load-value>
+							  </td>
+							  <td data-title="'Weight (kg)'" sortable="'notYet'" class="td-free">
+								  <load-value capacity="row.totalWeightLimit" used="row.totalWeight"></load-value>
+							  </td>
+							</tr>
+						  </table>
+				    </uib-tab>
+				    <uib-tab heading="Available Racks" ng-click="dashboardActiveTabChanged(4)">
+						  <a class="btn btn-link btn-add"ng-if="authentication.user.roles[0]!=='ReadOnly'" href="#!/dashboard/racks/create/rackGeneralInfo">Add<span>+</span></a>
+						  <table ng-table="rackTableParams" class="table table-condensed table-bordered table-striped entities-list">
+							<tr ng-repeat="row in $data" ng-click="viewRack(row)">
+								<td data-title="''" ng-click="favouritesRack(row, $event)" class="text-center">
+									<button class="btn btn-favourites">
+										<span ng-hide="row.rackIsInFav"><i class="fas fa-star"></i></span>
+										<span ng-show="row.rackIsInFav"><i style="color: #f4cf21" class="fas fa-star"></i></span>
+									</button>
+								</td>
+								<td data-title="''" class="text-center" >
+									<label ng-if="!row.status && !row.locked"><i class="far fa-circle" uib-tooltip-template="'newlyTooltipTemplate.html'"></i></label>
+									<label ng-if="row.locked && authentication.user.username != row.lockedBy"><i class="fas fa-lock" uib-tooltip-template="'lockTooltipTemplate.html'"></i></label>
+									<label ng-if="row.status && !row.locked"><i class="far fa-check-square" uib-tooltip-template="'completedTooltipTemplate.html'"></i></label>
+									<label ng-if="row.locked && authentication.user.username == row.lockedBy"><i class="far fa-edit" uib-tooltip-template="'editableTooltipTemplate.html'"></i></label>
+								</td>
+							  <td data-title="'Name'" sortable="'name'">{{row.name}}</td>
+							  <td data-title="'Country'" sortable="'countryName'">
+								  <country-name name="row.countryName"></country-name>
+							  </td>
+							  <td data-title="'City'" sortable="'cityName'">{{row.cityName}}</td>
+							  <td data-title="'Units'" sortable="'notYet'" class="td-free">
+								  <load-value capacity="row.sizeInU" used="row.takenUnits"></load-value>
+							  </td>
+							  <td data-title="'Power (Watts)'" sortable="'notYet'" class="td-free">
+								  <load-value capacity="row.powerCapacityLimit" used="row.totalPower + row.storagePower + row.enclosurePower"></load-value>
+							  </td>
+							  <td data-title="'Weight (kg)'" sortable="'notYet'" class="td-free">
+								  <load-value capacity="row.weightFloorLimit" used="row.totalWeight"></load-value>
+							  </td>
+							</tr>
+						  </table>
+				    </uib-tab>
+				  </uib-tabset>	
+				</div>  
+			</div>
+		</div>
+</section>
+<script type="text/ng-template" id="newlyTooltipTemplate.html">
+	<span>Newly added</span>
+</script>
+<script type="text/ng-template" id="editableTooltipTemplate.html">
+	<span>Editable</span>
+</script>
+<script type="text/ng-template" id="lockTooltipTemplate.html">
+	<span>Locked</span>
+</script>
+<script type="text/ng-template" id="completedTooltipTemplate.html">
+	<span>Completed</span>
+</script>
